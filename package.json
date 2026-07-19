@@ -9,9 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/huggingface": "^1.0.64",
+    "@ai-sdk/react": "^3.0.232",
+    "ai": "^6.0.230",
+    "axios": "^1.18.1",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.25.0",
+    "mongodb": "^7.5.0",
     "next": "16.2.10",
+    "node-fetch": "^3.3.2",
+    "p-limit": "^7.3.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "web-tree-sitter": "^0.26.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
