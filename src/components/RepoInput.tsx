@@ -64,20 +64,19 @@ export default function RepoInput() {
       className="w-full max-w-2xl mx-auto"
     >
       <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-2xl mb-4">
-          <Code className="w-10 h-10 text-primary" />
+        <div className="inline-flex items-center justify-center p-3 bg-white border border-slate-200 shadow-sm rounded-2xl mb-4">
+          <Code className="w-8 h-8 text-primary" />
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-4 tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-slate-900 to-slate-500 mb-4 tracking-tighter">
           Codebase Whisperer
         </h1>
-        <p className="text-lg text-slate-400 max-w-lg mx-auto">
+        <p className="text-lg text-slate-500 max-w-lg mx-auto">
           Paste any public GitHub repository URL to ingest the code and start asking architectural questions.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-        <div className="relative glass-panel rounded-2xl p-2 flex items-center">
+      <form onSubmit={handleSubmit} className="relative group mt-8">
+        <div className="relative bg-white rounded-2xl p-2 flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 ring-1 ring-slate-900/5 focus-within:ring-slate-900/10 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all">
           <Search className="w-6 h-6 text-slate-400 ml-3 mr-2" />
           <input
             type="url"
@@ -85,13 +84,13 @@ export default function RepoInput() {
             onChange={(e) => setUrl(e.target.value)}
             disabled={loading}
             placeholder="https://github.com/owner/repo"
-            className="flex-1 bg-transparent border-none text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-0 text-lg px-2"
+            className="flex-1 bg-transparent border-none text-black placeholder:text-slate-400 focus:outline-none focus:ring-0 text-lg px-2"
             required
           />
           <button
             type="submit"
             disabled={loading || !url}
-            className="bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2 shadow-lg shadow-blue-500/25"
+            className="bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 active:scale-95 text-white px-6 py-3 rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2 shadow-[0_1px_0_rgba(255,255,255,0.2)_inset,0_4px_14px_rgba(239,68,68,0.3)] border border-red-700/50"
           >
             {loading ? (
               <>
@@ -108,11 +107,38 @@ export default function RepoInput() {
         </div>
       </form>
       
+      {!loading && !error && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="mt-8 text-center"
+        >
+          <p className="text-sm text-slate-500 mb-3">Or try a suggested repository:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[
+              { name: 'Sudarshan1088/eathigh', label: 'EatHigh Repo' },
+              { name: 'pmndrs/zustand', label: 'Zustand' },
+              { name: 'chalk/chalk', label: 'Chalk' }
+            ].map((repo) => (
+              <button
+                key={repo.name}
+                type="button"
+                onClick={() => setUrl(`https://github.com/${repo.name}`)}
+                className="px-4 py-2 rounded-full border border-slate-200 bg-white/50 backdrop-blur-sm text-sm text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all"
+              >
+                {repo.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {error && (
         <motion.p 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
-          className="text-red-400 text-center mt-4 bg-red-500/10 py-2 px-4 rounded-lg border border-red-500/20"
+          className="text-red-600 text-center mt-6 bg-red-50 py-3 px-4 rounded-xl border border-red-200 shadow-sm"
         >
           {error}
         </motion.p>

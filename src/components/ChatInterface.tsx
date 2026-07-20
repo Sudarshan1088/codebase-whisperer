@@ -50,10 +50,15 @@ export default function ChatInterface({ repoId }: { repoId: string }) {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[70vh] max-h-[800px] glass-panel rounded-2xl overflow-hidden mt-8">
+    <div className="flex flex-col h-[70vh] max-h-[800px] bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl overflow-hidden mt-8 relative">
       {/* Header */}
-      <div className="p-4 border-b border-slate-800/50 bg-slate-900/80 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-100 flex items-center">
+      <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+        <div className="flex items-center space-x-2 mr-4">
+          <div className="w-3 h-3 rounded-full bg-red-400"></div>
+          <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+          <div className="w-3 h-3 rounded-full bg-green-400"></div>
+        </div>
+        <h2 className="text-sm font-semibold text-slate-700 flex items-center flex-1 justify-center -ml-12">
           <span className="text-primary mr-2">/</span>
           {repoId}
         </h2>
@@ -64,11 +69,31 @@ export default function ChatInterface({ repoId }: { repoId: string }) {
       </div>
 
       {/* Chat Area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth pb-24 bg-slate-50/30">
         {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
-            <Bot className="w-12 h-12 opacity-50" />
-            <p>Ask a question about the architecture or implementation of {repoId}.</p>
+          <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-6">
+            <div className="flex flex-col items-center space-y-2">
+              <Bot className="w-12 h-12 opacity-30 text-slate-400" />
+              <p className="text-sm">Ask a question about {repoId.split('/')[1]}</p>
+            </div>
+            
+            <div className="flex flex-col space-y-2 w-full max-w-sm">
+              {[
+                "Explain the overall architecture",
+                "Where are the API routes defined?",
+                "How is state management handled?"
+              ].map((suggestion, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => sendMessage({ text: suggestion })}
+                  className="text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-primary hover:text-primary transition-all shadow-sm flex items-center justify-between group"
+                >
+                  <span className="text-sm text-slate-600 group-hover:text-primary">{suggestion}</span>
+                  <span className="text-slate-300 group-hover:text-primary text-xs transition-colors">→</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -81,21 +106,21 @@ export default function ChatInterface({ repoId }: { repoId: string }) {
               className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`flex max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 ${
-                  m.role === 'user' ? 'bg-primary ml-3' : 'bg-slate-700 mr-3'
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 shadow-sm ${
+                  m.role === 'user' ? 'bg-gradient-to-b from-red-500 to-red-600 ml-3' : 'bg-white border border-slate-200 mr-3'
                 }`}>
-                  {m.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-slate-300" />}
+                  {m.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-slate-600" />}
                 </div>
                 
-                <div className={`p-4 rounded-2xl ${
+                <div className={`p-4 rounded-2xl shadow-sm ${
                   m.role === 'user' 
-                    ? 'bg-primary text-white rounded-tr-sm' 
-                    : 'bg-slate-800/80 border border-slate-700/50 text-slate-200 rounded-tl-sm'
+                    ? 'bg-gradient-to-b from-red-500 to-red-600 text-white rounded-tr-sm border border-red-700/50' 
+                    : 'bg-white border border-slate-200 text-slate-800 rounded-tl-sm'
                 }`}>
                   {m.role === 'user' ? (
                     <p className="whitespace-pre-wrap">{m.parts?.map((p: any) => p.type === 'text' ? p.text : '').join('')}</p>
                   ) : (
-                    <div className="prose prose-invert prose-sm max-w-none prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800">
+                    <div className="prose prose-sm max-w-none prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 prose-pre:text-slate-800">
                       <ReactMarkdown>{m.parts?.map((p: any) => p.type === 'text' ? p.text : '').join('')}</ReactMarkdown>
                     </div>
                   )}
@@ -108,12 +133,12 @@ export default function ChatInterface({ repoId }: { repoId: string }) {
         {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
              <div className="flex flex-row items-center space-x-3">
-               <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
-                 <Bot className="w-4 h-4 text-slate-300" />
+               <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+                 <Bot className="w-4 h-4 text-slate-600" />
                </div>
-               <div className="p-4 bg-slate-800/80 rounded-2xl rounded-tl-sm border border-slate-700/50 flex items-center space-x-2">
+               <div className="p-4 bg-slate-50 rounded-2xl rounded-tl-sm border border-slate-200 flex items-center space-x-2">
                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                 <span className="text-sm text-slate-400">Searching codebase...</span>
+                 <span className="text-sm text-slate-500">Searching codebase...</span>
                </div>
              </div>
           </motion.div>
@@ -121,22 +146,24 @@ export default function ChatInterface({ repoId }: { repoId: string }) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-slate-900/90 border-t border-slate-800/50">
-        <form onSubmit={handleSubmit} className="relative flex items-center">
-          <input
-            value={input}
-            onChange={handleInputChange}
-            placeholder={`Ask about ${repoId.split('/')[1]}...`}
-            className="w-full bg-slate-950/50 border border-slate-700/50 text-white rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-slate-500"
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="absolute right-2 p-2 bg-primary hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-primary text-white rounded-lg transition-colors"
-          >
-            <Send className="w-4 h-4" />
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent pointer-events-none">
+        <div className="max-w-3xl mx-auto pointer-events-auto">
+          <form onSubmit={handleSubmit} className="relative flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full bg-white border border-slate-200 ring-1 ring-slate-900/5 focus-within:ring-slate-900/10 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all">
+            <input
+              value={input}
+              onChange={handleInputChange}
+              placeholder={`Ask about ${repoId.split('/')[1]}...`}
+              className="w-full bg-transparent border-none text-slate-900 rounded-full py-4 pl-6 pr-14 focus:outline-none focus:ring-0 transition-all placeholder:text-slate-400"
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="absolute right-2 p-2.5 bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:opacity-50 text-white rounded-full transition-all active:scale-95 shadow-[0_1px_0_rgba(255,255,255,0.2)_inset,0_2px_4px_rgba(239,68,68,0.2)] border border-red-700/50"
+            >
+            <Send className="w-4 h-4 ml-0.5" />
           </button>
         </form>
+        </div>
       </div>
     </div>
   );
