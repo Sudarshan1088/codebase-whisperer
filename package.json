@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/huggingface": "^1.0.64",
+    "@ai-sdk/openai": "^3.0.86",
     "@ai-sdk/react": "^3.0.232",
     "ai": "^6.0.230",
     "axios": "^1.18.1",

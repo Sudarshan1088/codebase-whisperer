@@ -1,16 +1,15 @@
 import { NextRequest } from 'next/server';
 import { streamText, convertToModelMessages } from 'ai';
 import { createHuggingFace } from '@ai-sdk/huggingface';
-import nodeFetch from 'node-fetch';
 import { connectToDatabase, CODE_CHUNKS_COLLECTION } from '@/lib/services/db';
 import { HuggingFaceService } from '@/lib/services/huggingface';
 
 export const runtime = 'nodejs';
 
-// Initialize Hugging Face provider
+// Use the dedicated Hugging Face provider — routes to the correct
+// HF Responses API endpoint and handles model routing automatically.
 const hf = createHuggingFace({
   apiKey: process.env.HF_TOKEN,
-  fetch: nodeFetch as any,
 });
 
 export async function POST(req: NextRequest) {
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Chat] Querying repo ${repo_id}: "${userQuery}"`);
 
-    // 1. Generate embedding for the user query
     let queryEmbedding: number[];
     try {
       queryEmbedding = await HuggingFaceService.generateEmbedding(userQuery);
@@ -78,7 +76,7 @@ export async function POST(req: NextRequest) {
     const results = await collection.aggregate(pipeline).toArray();
 
     // 3. Assemble and Truncate Context
-    const MAX_CONTEXT_LENGTH = 20000; // Character limit for Llama-3-8B (~5-6k tokens, leaving room for generation and history)
+    const MAX_CONTEXT_LENGTH = 20000; // Character limit for context chunks (leaving room for system prompt, chat history, and generation)
     let currentContextLength = 0;
     const contextChunks: string[] = [];
     const sourceFiles: Set<string> = new Set();
@@ -118,19 +116,19 @@ INSTRUCTIONS:
 
     // 5. Stream the Response using Vercel AI SDK
     const result = await streamText({
-      model: hf('meta-llama/Meta-Llama-3-8B-Instruct'),
+      model: hf('Qwen/Qwen2.5-Coder-32B-Instruct'),
       system: systemPrompt,
       messages: modelMessages,
     });
 
-    // We can inject source files in HTTP headers if we wanted the frontend to extract them,
-    // or append them as a data stream. For simplicity with standard `useChat`, 
-    // the AI is instructed to cite file paths in its markdown text.
-    // However, sending them as custom headers is a clean way to populate a specific citations UI.
+    // Return a UIMessageStream response — this is the format that
+    // DefaultChatTransport / useChat expects in ai SDK v6.x.
+    // It produces Server-Sent Events with structured UIMessageChunk JSON,
+    // which the frontend transport parses into messages + parts.
     const responseHeaders = new Headers();
     responseHeaders.set('x-source-files', Array.from(sourceFiles).join(','));
 
-    return result.toTextStreamResponse({ headers: responseHeaders });
+    return result.toUIMessageStreamResponse({ headers: responseHeaders });
 
   } catch (error: any) {
     console.error('[Chat] Error:', error);
