@@ -1,4 +1,4 @@
-# Codebase Whisperer 🧑‍💻✨
+# Codebase Whisperer 🧑‍💻
 
 **Codebase Whisperer** is a powerful AI-driven SaaS platform that allows developers to "chat" with any GitHub repository. By leveraging advanced Retrieval-Augmented Generation (RAG) and Tree-sitter Abstract Syntax Tree (AST) parsing, the platform understands repository architecture, code logic, and dependencies, providing deep, context-aware answers to your programming questions.
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 🌟 Key Achievements & Features
+## Key Achievements & Features
 
 ### 1. Intelligent Repository Ingestion
 * **GitHub API Integration**: Fetches repository contents, including branches and file trees, while adhering to rate limits and ignoring irrelevant files (e.g., binaries, lockfiles, node_modules).
@@ -32,7 +32,7 @@
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 The application is built entirely on the modern web stack, deployed on Vercel Serverless environments:
 
@@ -44,7 +44,7 @@ The application is built entirely on the modern web stack, deployed on Vercel Se
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 You will need API keys for the following services:
@@ -90,7 +90,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ---
 
-## 💡 How It Works
+## How It Works
 
 1. **Importing**: A user inputs a repository URL (e.g., `facebook/react`). The backend streams the tree retrieval and chunking phase over SSE.
 2. **Chunking**: Source files are logically broken down by an AST tree-sitter. Embeddings are generated for each logical chunk and written to MongoDB.
