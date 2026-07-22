@@ -16,9 +16,6 @@ const hf = createHuggingFace({
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
 
     const { messages, repo_id, chatId } = await req.json();
 
@@ -162,6 +159,8 @@ INSTRUCTIONS:
 2. IMPORTANT: You MUST start your response by politely informing the user that codebase search is temporarily unavailable due to rate limits, and that you are answering from general knowledge.`;
 
     const saveChatThread = async (completionText: string) => {
+      if (!userId) return; // Guest Mode: do not persist to DB
+
       try {
         const { db } = await connectToDatabase();
         const collection = db.collection<ChatThread>(CHATS_COLLECTION);

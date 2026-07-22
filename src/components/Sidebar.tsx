@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MessageSquare, PlusCircle, Menu, X } from 'lucide-react';
 
-import { Show } from '@clerk/nextjs';
+import { useAuth, SignInButton } from '@clerk/nextjs';
 
 interface ChatSnippet {
   _id: string;
@@ -20,9 +20,14 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  const { isSignedIn, isLoaded } = useAuth();
+
   useEffect(() => {
-    // Only fetch if we're authenticated, but we handle that via Clerk's <Show> below.
-    // However, it's safe to just fetch, as the API returns 401 if not.
+    if (!isLoaded || !isSignedIn) {
+      setIsLoading(false);
+      return;
+    }
+
     fetch('/api/chats')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch');
@@ -38,7 +43,7 @@ export default function Sidebar() {
   }, [pathname]); // Re-fetch when navigation happens to update the list if a new chat was created
 
   return (
-    <Show when="signed-in">
+    <>
       {/* Mobile Hamburger Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
@@ -68,8 +73,17 @@ export default function Sidebar() {
           
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-2">Your Chats</h3>
           
-          {isLoading ? (
+          {!isLoaded || isLoading ? (
             <div className="px-2 text-sm text-slate-500 animate-pulse">Loading...</div>
+          ) : !isSignedIn ? (
+            <div className="px-3 py-4 mt-2 text-sm text-slate-500 bg-slate-100/50 rounded-xl border border-slate-200/50 text-center">
+              <p className="mb-3 text-xs leading-relaxed">Sign in to save your chat history and pick up where you left off.</p>
+              <SignInButton mode="modal">
+                <button className="w-full text-xs font-medium bg-white text-slate-700 px-3 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                  Sign In
+                </button>
+              </SignInButton>
+            </div>
           ) : chats.length === 0 ? (
             <div className="px-2 text-sm text-slate-500">No chats yet.</div>
           ) : (
@@ -103,6 +117,6 @@ export default function Sidebar() {
           )}
         </div>
       </aside>
-    </Show>
+    </>
   );
 }
