@@ -61,7 +61,7 @@ export default function Sidebar() {
         w-72 md:w-64 h-full bg-slate-50/95 backdrop-blur-xl border-r border-slate-200/60 flex flex-col pt-16 md:pt-20 shadow-2xl md:shadow-none
       `}>
         <div className="p-4 flex-1 overflow-y-auto space-y-2">
-          <Link href="/" className="flex items-center space-x-2 w-full px-4 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-sm mb-6">
+          <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 w-full px-4 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-sm mb-6">
             <PlusCircle className="w-4 h-4" />
             <span className="text-sm font-medium">New Chat</span>
           </Link>

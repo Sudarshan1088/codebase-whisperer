@@ -142,7 +142,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
               key={m.id}
               className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`flex w-full max-w-[92%] md:max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`flex max-w-[92%] md:max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 shadow-sm ${
                   m.role === 'user' 
