@@ -12,12 +12,12 @@ export default function Header() {
       <div className="flex items-center gap-4">
         <Show when="signed-out">
           <SignInButton>
-            <button className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">
+            <button className="text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
               Sign In
             </button>
           </SignInButton>
           <SignUpButton>
-            <button className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
+            <button className="text-xs md:text-sm font-medium bg-slate-900 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl hover:bg-slate-800 transition-all shadow-sm hover:shadow active:scale-95">
               Sign Up
             </button>
           </SignUpButton>
