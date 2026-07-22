@@ -22,6 +22,7 @@
 * **Vector Search**: Computes high-dimensional embeddings and stores them in MongoDB. Queries perform a similarity search utilizing MongoDB Atlas `$vectorSearch` to strictly retrieve the most relevant codebase context for the LLM.
 
 ### 3. Production-Ready User & Chat Management
+* **Guest Mode (PLG)**: Frictionless onboarding experience allowing users to test the app without logging in—a massive Product-Led Growth feature.
 * **Authentication**: Fully secured by Clerk (`@clerk/nextjs`), separating user instances and protecting API routes.
 * **Persistent History**: Chat threads are persisted in MongoDB using an embedded document model.
 * **Vercel AI SDK Integration**: Real-time markdown streaming via `@ai-sdk/react`. Chat sessions seamlessly restore exact message context and metadata across navigations without UI blocking.
@@ -36,11 +37,13 @@
 
 The application is built entirely on the modern web stack, deployed on Vercel Serverless environments:
 
-* **Framework**: Next.js 16 (App Router) + React 19
-* **Database**: MongoDB (Atlas) for both application data (Chats/Users) and high-dimensional Vector storage.
-* **Authentication**: Clerk Identity Management
-* **AI Tooling**: Vercel AI SDK, Hugging Face API, Google Generative AI API
-* **Parsing**: Web Tree-sitter (WASM) for universal syntax parsing.
+| Layer | Technology Stack |
+| :--- | :--- |
+| **Framework** | **Next.js 16** (App Router) + React 19 |
+| **Database** | **MongoDB Atlas** (App Data + Vector Storage) |
+| **Authentication** | **Clerk** Identity Management |
+| **AI Tooling** | **Vercel AI SDK**, Hugging Face API, Google Generative AI API |
+| **Parsing** | **Web Tree-sitter** (WASM) for universal syntax parsing |
 
 ---
 
