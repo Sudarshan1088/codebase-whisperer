@@ -8,9 +8,9 @@ import { Send, User, Bot, Loader2, Code2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useRouter } from 'next/navigation';
-import { Message } from 'ai';
+import { UIMessage } from 'ai';
 
-export default function ChatInterface({ repoId, chatId, initialMessages }: { repoId: string; chatId?: string; initialMessages?: Message[] }) {
+export default function ChatInterface({ repoId, chatId, initialMessages }: { repoId: string; chatId?: string; initialMessages?: UIMessage[] }) {
   const router = useRouter();
   const chatIdRef = useRef<string>(chatId || crypto.randomUUID());
 

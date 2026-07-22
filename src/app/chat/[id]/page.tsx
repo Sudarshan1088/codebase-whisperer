@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import ChatInterface from '@/components/ChatInterface';
-import { Message } from 'ai';
+import { UIMessage } from 'ai';
 
 export default function ChatPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [chatData, setChatData] = useState<{ repoId: string; messages: Message[] } | null>(null);
+  const [chatData, setChatData] = useState<{ repoId: string; messages: UIMessage[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
