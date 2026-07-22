@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MessageSquare, PlusCircle } from 'lucide-react';
-import { SignedIn } from '@clerk/nextjs'; // Wait, let's use Show instead of SignedIn since it's deprecated
+
 import { Show } from '@clerk/nextjs';
 
 interface ChatSnippet {
