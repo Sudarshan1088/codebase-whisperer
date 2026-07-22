@@ -142,7 +142,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
               key={m.id}
               className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`flex max-w-[88%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`flex w-full max-w-[92%] md:max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 shadow-sm ${
                   m.role === 'user' 
@@ -152,15 +152,15 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
                   {m.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Sparkles className="w-4 h-4 text-slate-700" />}
                 </div>
                 
-                <div className={`p-5 rounded-3xl shadow-sm ${
+                <div className={`min-w-0 p-4 md:p-5 rounded-3xl shadow-sm ${
                   m.role === 'user' 
                     ? 'bg-slate-900 text-white rounded-tr-md border border-slate-800' 
                     : 'bg-white border border-slate-200/60 text-slate-800 rounded-tl-md shadow-[0_2px_10px_rgb(0,0,0,0.02)]'
                 }`}>
                   {m.role === 'user' ? (
-                    <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{getMessageText(m)}</p>
+                    <p className="whitespace-pre-wrap leading-relaxed text-[15px] break-words">{getMessageText(m)}</p>
                   ) : (
-                    <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:text-slate-50 prose-pre:shadow-lg prose-headings:font-medium prose-a:text-blue-600">
+                    <div className="prose prose-sm max-w-none overflow-x-auto break-words prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:text-slate-50 prose-pre:shadow-lg prose-headings:font-medium prose-a:text-blue-600">
                       <ReactMarkdown>{getMessageText(m)}</ReactMarkdown>
                     </div>
                   )}
