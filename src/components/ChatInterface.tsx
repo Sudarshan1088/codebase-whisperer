@@ -15,7 +15,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
   const chatIdRef = useRef<string>(chatId || crypto.randomUUID());
 
   const { messages, status, sendMessage } = useChat({
-    initialMessages,
+    messages: initialMessages,
     transport: new DefaultChatTransport({ 
       api: '/api/chat',
       body: {
