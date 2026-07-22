@@ -140,7 +140,7 @@ export default function Sidebar() {
         </div>
 
         {/* User / Auth Section */}
-        <div className="p-4 border-t border-slate-200/60 bg-white/50 backdrop-blur-md">
+        <div className="mt-auto p-4 border-t border-slate-200/60 bg-white/50 backdrop-blur-md">
           {!isLoaded ? (
             <div className="h-10 animate-pulse bg-slate-200/60 rounded-xl"></div>
           ) : isSignedIn ? (
