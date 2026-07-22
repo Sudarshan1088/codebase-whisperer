@@ -23,7 +23,7 @@ export default function Header() {
           </SignUpButton>
         </Show>
         <Show when="signed-in">
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </Show>
       </div>
     </header>
