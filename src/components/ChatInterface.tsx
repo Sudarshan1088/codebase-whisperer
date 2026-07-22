@@ -64,7 +64,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
   }, [messages, isLoading]);
 
   return (
-    <div className="flex flex-col h-[100dvh] md:h-[75vh] md:max-h-[850px] w-full bg-white/70 backdrop-blur-xl border-none md:border border-slate-200/60 shadow-none md:shadow-2xl rounded-none md:rounded-3xl overflow-hidden md:mt-4 relative ring-0 md:ring-1 ring-slate-900/5">
+    <div className="flex flex-col h-full flex-1 md:h-[75vh] md:max-h-[850px] w-full bg-white/70 backdrop-blur-xl border-none md:border border-slate-200/60 shadow-none md:shadow-2xl rounded-none md:rounded-3xl overflow-hidden md:mt-4 relative ring-0 md:ring-1 ring-slate-900/5">
       {/* Header */}
       <div className="px-6 py-4 border-b border-slate-200/60 bg-white/50 backdrop-blur-md flex items-center justify-between z-10">
         <div className="flex items-center space-x-2">

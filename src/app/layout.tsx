@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
-import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
 import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,14 +38,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         suppressHydrationWarning
       >
-        <body className="min-h-full flex flex-col" suppressHydrationWarning>
-          <Header />
-          <div className="flex-1 flex overflow-hidden relative">
-            <Sidebar />
-            <div className="flex-1 overflow-auto bg-slate-100/80 relative">
-              {children}
+        <body className="flex flex-col min-h-[100dvh]" suppressHydrationWarning>
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex overflow-hidden relative">
+              <Sidebar />
+              <div className="flex-1 overflow-auto bg-slate-100/80 relative">
+                {children}
+              </div>
             </div>
-          </div>
+          </main>
+          <Footer />
         </body>
       </html>
     </ClerkProvider>
