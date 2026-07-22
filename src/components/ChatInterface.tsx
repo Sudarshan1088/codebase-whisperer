@@ -12,6 +12,14 @@ import { UIMessage } from 'ai';
 
 export default function ChatInterface({ repoId, chatId, initialMessages }: { repoId: string; chatId?: string; initialMessages?: UIMessage[] }) {
   const router = useRouter();
+
+  const getMessageText = (m: any) => {
+    if (m.parts && Array.isArray(m.parts)) {
+      return m.parts.map((p: any) => p.type === 'text' ? p.text : '').join('');
+    }
+    return m.content || m.text || '';
+  };
+
   const chatIdRef = useRef<string>(chatId || crypto.randomUUID());
 
   const { messages, status, sendMessage } = useChat({
@@ -150,10 +158,10 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
                     : 'bg-white border border-slate-200/60 text-slate-800 rounded-tl-md shadow-[0_2px_10px_rgb(0,0,0,0.02)]'
                 }`}>
                   {m.role === 'user' ? (
-                    <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{m.parts?.map((p: any) => p.type === 'text' ? p.text : '').join('')}</p>
+                    <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{getMessageText(m)}</p>
                   ) : (
                     <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:text-slate-50 prose-pre:shadow-lg prose-headings:font-medium prose-a:text-blue-600">
-                      <ReactMarkdown>{m.parts?.map((p: any) => p.type === 'text' ? p.text : '').join('')}</ReactMarkdown>
+                      <ReactMarkdown>{getMessageText(m)}</ReactMarkdown>
                     </div>
                   )}
                 </div>

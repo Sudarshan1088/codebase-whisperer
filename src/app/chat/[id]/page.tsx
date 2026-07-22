@@ -75,6 +75,7 @@ export default function ChatPage() {
       
       <div className="max-w-5xl w-full mx-auto relative z-10 flex-1 flex flex-col h-full">
         <ChatInterface 
+          key={id as string}
           repoId={chatData.repoId} 
           chatId={id as string} 
           initialMessages={chatData.messages} 
