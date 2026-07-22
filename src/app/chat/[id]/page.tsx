@@ -46,7 +46,7 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center h-screen bg-slate-50">
+      <div className="flex-1 flex items-center justify-center h-screen bg-transparent">
         <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
       </div>
     );
@@ -54,7 +54,7 @@ export default function ChatPage() {
 
   if (error || !chatData) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center h-screen bg-slate-50">
+      <div className="flex-1 flex flex-col items-center justify-center h-screen bg-transparent">
         <h2 className="text-xl font-semibold text-slate-800">Error</h2>
         <p className="text-slate-500 mt-2">{error || 'Failed to load chat'}</p>
         <button 

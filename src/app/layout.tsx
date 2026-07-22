@@ -42,7 +42,7 @@ export default function RootLayout({
           <Header />
           <div className="flex-1 flex overflow-hidden relative">
             <Sidebar />
-            <div className="flex-1 overflow-auto bg-slate-50 relative">
+            <div className="flex-1 overflow-auto bg-slate-100/80 relative">
               {children}
             </div>
           </div>
