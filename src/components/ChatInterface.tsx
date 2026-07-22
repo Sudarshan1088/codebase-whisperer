@@ -68,9 +68,9 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
       {/* Header */}
       <div className="px-6 py-4 border-b border-slate-200/60 bg-white/50 backdrop-blur-md flex items-center justify-between z-10">
         <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-slate-200 hover:bg-red-400 transition-colors cursor-pointer"></div>
-          <div className="w-3 h-3 rounded-full bg-slate-200 hover:bg-amber-400 transition-colors cursor-pointer"></div>
-          <div className="w-3 h-3 rounded-full bg-slate-200 hover:bg-green-400 transition-colors cursor-pointer"></div>
+          <div className="w-3 h-3 rounded-full bg-red-400/30 hover:bg-red-500 transition-colors cursor-pointer"></div>
+          <div className="w-3 h-3 rounded-full bg-amber-400/30 hover:bg-amber-500 transition-colors cursor-pointer"></div>
+          <div className="w-3 h-3 rounded-full bg-green-400/30 hover:bg-green-500 transition-colors cursor-pointer"></div>
         </div>
         
         <div className="flex flex-col items-center justify-center flex-1 -ml-6">
