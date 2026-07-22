@@ -84,7 +84,7 @@ export class ChunkingService {
           start_line: startLine,
           end_line: i,
         });
-        
+
         // Calculate overlap
         const overlapLines = [];
         let overlapLength = 0;
@@ -94,7 +94,7 @@ export class ChunkingService {
           overlapLength += lines[j].length;
           j--;
         }
-        
+
         currentChunk = overlapLines.join('\n') + (overlapLines.length > 0 ? '\n' : '') + line + '\n';
         startLine = j + 2;
       } else {
@@ -130,7 +130,7 @@ export class ChunkingService {
     }
 
     this.parserInstance.setLanguage(language);
-    
+
     let tree;
     try {
       tree = this.parserInstance.parse(content);
@@ -144,7 +144,7 @@ export class ChunkingService {
     // Simple AST traversal to find function and class declarations
     const traverse = (node: any) => {
       const type = node.type;
-      
+
       // Node types to extract as chunks
       const chunkTypes = [
         'function_declaration',
@@ -152,7 +152,10 @@ export class ChunkingService {
         'method_definition',
         'arrow_function',
         'export_statement',
-        'function_definition' // python
+        'function_definition',
+        'function_expression',
+        'function',
+        'generator_function'
       ];
 
       if (chunkTypes.includes(type) && node.text.length > 50) {
@@ -188,13 +191,13 @@ export class ChunkingService {
 
     // If the file is very small or AST found nothing, chunk the whole file
     if (chunks.length === 0) {
-       chunks.push({
-          code_content: content.trim(),
-          node_type: 'file',
-          node_name: path.basename(filePath),
-          start_line: 1,
-          end_line: content.split('\n').length,
-       });
+      chunks.push({
+        code_content: content.trim(),
+        node_type: 'file',
+        node_name: path.basename(filePath),
+        start_line: 1,
+        end_line: content.split('\n').length,
+      });
     }
 
     return chunks;
