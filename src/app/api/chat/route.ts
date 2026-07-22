@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[Chat Route] Incoming messages:', JSON.stringify(messages, null, 2));
-    require('fs').writeFileSync('incoming_messages.log', JSON.stringify(messages, null, 2));
 
     // Convert UI messages to core messages manually to avoid SDK bugs
     const modelMessages = messages.map((m: any) => {
@@ -245,8 +244,7 @@ INSTRUCTIONS:
           },
         });
       } catch (geminiError: any) {
-        console.error('[AI Router] Gemini stream also failed:', geminiError);
-        require('fs').appendFileSync('gemini-error.log', String(geminiError.stack || geminiError) + '\\n');
+        console.error('[Chat Route] Error generating gemini text:', geminiError);
         throw geminiError;
       }
     }
@@ -257,8 +255,7 @@ INSTRUCTIONS:
     return result.toUIMessageStreamResponse({ headers: responseHeaders });
 
   } catch (error: any) {
-    console.error('[Chat] Error:', error?.stack || error);
-    require('fs').appendFileSync('error.log', String(error?.stack || error) + '\\n');
+    console.error('[Chat Route] Error:', error);
     return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), { status: 500 });
   }
 }
