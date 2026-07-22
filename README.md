@@ -10,9 +10,7 @@
 
 ---
 
-![Uploading recording2026-07-2219360(1)_5247_v1.gif…]()
-
-
+<img src=""C:\Users\LENOVO\Desktop\AskRepo\recording2026-07-2219360(1)_5247_v1.gif"" width="500" alt="Description">
 
 
 ## Key Achievements & Features
