@@ -8,6 +8,8 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas_Vector_Search-green)
 ![Tailwind](https://img.shields.io/badge/TailwindCSS-v4-38B2AC)
 
+![Demo of Codebase Whisperer](./public/demo.gif)
+
 ---
 
 ## Key Achievements & Features
