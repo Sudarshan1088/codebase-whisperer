@@ -145,7 +145,7 @@ export default function Sidebar() {
             <div className="h-10 animate-pulse bg-slate-200/60 rounded-xl"></div>
           ) : isSignedIn ? (
             <div className="flex items-center gap-3 px-1 py-1">
-              <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "w-8 h-8 shadow-sm ring-1 ring-slate-200" } }} />
+              <UserButton appearance={{ elements: { avatarBox: "w-8 h-8 shadow-sm ring-1 ring-slate-200" } }} />
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-slate-700">Account</span>
                 <span className="text-[10px] text-slate-400">Manage settings</span>
