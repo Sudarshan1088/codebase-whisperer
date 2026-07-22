@@ -11,7 +11,7 @@ export default async function Home({
   const activeRepo = typeof repoParam === 'string' ? repoParam : null;
 
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col pt-12 md:pt-24 px-4 sm:px-6 relative overflow-hidden">
+    <main className="min-h-screen bg-transparent flex flex-col pt-12 md:pt-24 px-4 sm:px-6 relative overflow-hidden">
       {/* Subtle Dot Grid Background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       {/* Radial Gradient Glow in the center */}
