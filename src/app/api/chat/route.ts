@@ -1,31 +1,55 @@
 import { NextRequest } from 'next/server';
-import { streamText, convertToModelMessages } from 'ai';
+import { streamText } from 'ai';
 import { createHuggingFace } from '@ai-sdk/huggingface';
-import { connectToDatabase, CODE_CHUNKS_COLLECTION } from '@/lib/services/db';
-import { HuggingFaceService } from '@/lib/services/huggingface';
+import { google } from '@ai-sdk/google';
+import { connectToDatabase, CODE_CHUNKS_COLLECTION, CodeChunk, CHATS_COLLECTION, ChatThread, ChatMessage } from '@/lib/services/db';
+import { AIRouter, AIProvider } from '@/lib/services/ai-router';
+import { auth } from '@clerk/nextjs/server';
 
 export const runtime = 'nodejs';
 
-// Use the dedicated Hugging Face provider — routes to the correct
-// HF Responses API endpoint and handles model routing automatically.
+// Primary Provider
 const hf = createHuggingFace({
   apiKey: process.env.HF_TOKEN,
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, repo_id } = await req.json();
+    const { userId } = await auth();
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    }
+
+    const { messages, repo_id, chatId } = await req.json();
 
     if (!repo_id) {
       return new Response(JSON.stringify({ error: 'repo_id is required' }), { status: 400 });
+    }
+
+    if (!chatId) {
+      return new Response(JSON.stringify({ error: 'chatId is required' }), { status: 400 });
     }
 
     if (!messages || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'messages are required' }), { status: 400 });
     }
 
-    // Convert UI messages to model messages
-    const modelMessages = await convertToModelMessages(messages);
+    console.log('[Chat Route] Incoming messages:', JSON.stringify(messages, null, 2));
+    require('fs').writeFileSync('incoming_messages.log', JSON.stringify(messages, null, 2));
+
+    // Convert UI messages to core messages manually to avoid SDK bugs
+    const modelMessages = messages.map((m: any) => {
+      let textContent = '';
+      if (m.parts && Array.isArray(m.parts)) {
+        textContent = m.parts.map((p: any) => p.type === 'text' ? p.text : '').join('');
+      } else {
+        textContent = m.content || m.text || '';
+      }
+      return {
+        role: m.role,
+        content: textContent
+      };
+    });
 
     // Extract the latest user message to query the vector database
     const lastMessage = modelMessages[modelMessages.length - 1];
@@ -38,60 +62,77 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Chat] Querying repo ${repo_id}: "${userQuery}"`);
 
-    let queryEmbedding: number[];
+    const { db } = await connectToDatabase();
+    const collection = db.collection<CodeChunk>(CODE_CHUNKS_COLLECTION);
+
+    // 1. Determine which provider was used for this repository
+    const sampleDoc = await collection.findOne({ repo_id });
+    const provider: AIProvider = sampleDoc?.provider || 'huggingface'; // Default to huggingface for older docs
+
+    // 2. Generate Query Embedding using Strict Provider Matching
+    let queryEmbedding: number[] | null = null;
+    let fallbackContextMessage = '';
+    
     try {
-      queryEmbedding = await HuggingFaceService.generateEmbedding(userQuery);
-    } catch (err) {
-      console.error('[Chat] Failed to generate query embedding:', err);
-      return new Response(JSON.stringify({ error: 'Failed to process query context' }), { status: 500 });
+      queryEmbedding = await AIRouter.generateQueryEmbedding(userQuery, provider);
+    } catch (err: any) {
+      if (err.message === 'PROVIDER_DOWN') {
+        // Graceful Query Failure
+        console.warn(`[Chat] Strict provider embedding failed for ${provider}. Bypassing vector search.`);
+        fallbackContextMessage = "";
+      } else {
+        console.error('[Chat] Failed to generate query embedding:', err);
+        return new Response(JSON.stringify({ error: 'Failed to process query context' }), { status: 500 });
+      }
     }
 
-    // 2. Perform MongoDB Vector Search with Pre-filtering
-    const { db } = await connectToDatabase();
-    const collection = db.collection(CODE_CHUNKS_COLLECTION);
-
-    const pipeline = [
-      {
-        $vectorSearch: {
-          index: "default", 
-          path: "embedding",
-          queryVector: queryEmbedding,
-          numCandidates: 100, 
-          limit: 5,           
-          filter: {
-            repo_id: repo_id  
+    let results: any[] = [];
+    if (queryEmbedding) {
+      // 3. Perform MongoDB Vector Search with Pre-filtering
+      const embeddingField = provider === 'huggingface' ? 'embedding_hf' : 'embedding_gemini';
+      
+      const pipeline = [
+        {
+          $vectorSearch: {
+            index: "default", // NOTE: Ensure Atlas Search Index supports the chosen path!
+            path: embeddingField,
+            queryVector: queryEmbedding,
+            numCandidates: 500, 
+            limit: 50,           
+            filter: {
+              repo_id: repo_id  
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            file_path: 1,
+            code_content: 1,
+            score: { $meta: "vectorSearchScore" }
           }
         }
-      },
-      {
-        $project: {
-          _id: 0,
-          file_path: 1,
-          code_content: 1,
-          score: { $meta: "vectorSearchScore" }
-        }
-      }
-    ];
+      ];
 
-    const results = await collection.aggregate(pipeline).toArray();
+      results = await collection.aggregate(pipeline).toArray();
+      console.log('[Chat Route] Retrieved chunks count:', results.length);
+    }
 
-    // 3. Assemble and Truncate Context
-    const MAX_CONTEXT_LENGTH = 20000; // Character limit for context chunks (leaving room for system prompt, chat history, and generation)
-    let currentContextLength = 0;
-    const contextChunks: string[] = [];
+    // 4. Assemble and Truncate Context
+    const MAX_CONTEXT_LENGTH = 60000;
+    let currentContextLength = fallbackContextMessage.length;
+    const contextChunks: string[] = [fallbackContextMessage];
     const sourceFiles: Set<string> = new Set();
 
     for (const res of results) {
       const chunkString = `File: ${res.file_path}\n\`\`\`\n${res.code_content}\n\`\`\`\n\n`;
       if (currentContextLength + chunkString.length > MAX_CONTEXT_LENGTH) {
-        // If adding the whole chunk exceeds the limit, we can either skip it or truncate the string.
-        // For simplicity, we'll slice it to fit the remaining budget and append an indicator.
         const remainingSpace = MAX_CONTEXT_LENGTH - currentContextLength;
-        if (remainingSpace > 100) { // Only append if we have meaningful space left
+        if (remainingSpace > 100) {
            contextChunks.push(chunkString.slice(0, remainingSpace) + '\n...[TRUNCATED]\n\`\`\`\n\n');
            sourceFiles.add(res.file_path);
         }
-        break; // Stop adding more chunks
+        break;
       } else {
         contextChunks.push(chunkString);
         currentContextLength += chunkString.length;
@@ -101,37 +142,123 @@ export async function POST(req: NextRequest) {
 
     const assembledContext = contextChunks.join('');
 
-    // 4. Construct System Prompt
-    const systemPrompt = `You are a Senior Engineer Agent answering questions about a specific codebase. 
+    // 5. Construct System Prompt
+    const systemPrompt = queryEmbedding 
+      ? `You are a Senior Software Engineer acting as a codebase assistant. 
 You are provided with semantic code chunks retrieved from the repository to use as context.
 
 CONTEXT:
 ${assembledContext}
 
 INSTRUCTIONS:
-1. Answer the user's question accurately based ONLY on the provided context.
+1. Answer the user's question accurately based on the provided codebase context.
 2. When referencing code, explicitly cite the file path.
-3. If the answer is not present in the provided context, output exactly: 'I cannot find the answer to this in the provided codebase context.'
-4. Do not guess or hallucinate information outside the provided context.`;
+3. If the provided context does not explicitly contain a direct answer (e.g., for high-level architectural questions), analyze the provided code chunks to infer the architecture, patterns, and logic to the best of your ability.
+4. You may supplement your answer with your general knowledge of programming, frameworks, and this specific repository (if public), but clearly state when you are making assumptions outside of the provided context.`
+      : `You are a Senior Engineer Agent.
+[SYSTEM ALERT: Vector search is temporarily unavailable due to embedding API rate limits, so you do not have direct access to the codebase chunks.]
 
-    // 5. Stream the Response using Vercel AI SDK
-    const result = await streamText({
-      model: hf('Qwen/Qwen2.5-Coder-32B-Instruct'),
-      system: systemPrompt,
-      messages: modelMessages,
-    });
+INSTRUCTIONS:
+1. Answer the user's question based on your general knowledge of the repository (if it is a well-known public library).
+2. IMPORTANT: You MUST start your response by politely informing the user that codebase search is temporarily unavailable due to rate limits, and that you are answering from general knowledge.`;
 
-    // Return a UIMessageStream response — this is the format that
-    // DefaultChatTransport / useChat expects in ai SDK v6.x.
-    // It produces Server-Sent Events with structured UIMessageChunk JSON,
-    // which the frontend transport parses into messages + parts.
+    const saveChatThread = async (completionText: string) => {
+      try {
+        const { db } = await connectToDatabase();
+        const collection = db.collection<ChatThread>(CHATS_COLLECTION);
+        
+        const now = new Date();
+        const userMsg: ChatMessage = {
+          id: messages[messages.length - 1].id || crypto.randomUUID(),
+          role: 'user',
+          content: userQuery,
+          createdAt: now,
+        };
+        const assistantMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: completionText,
+          createdAt: now,
+        };
+
+        const existingThread = await collection.findOne({ _id: chatId as any, userId });
+
+        if (!existingThread) {
+          const title = userQuery.slice(0, 40) + (userQuery.length > 40 ? '...' : '');
+          await collection.insertOne({
+            _id: chatId as any,
+            userId,
+            repoId: repo_id,
+            title,
+            messages: [userMsg, assistantMsg],
+            createdAt: now,
+            updatedAt: now,
+          });
+        } else {
+          await collection.updateOne(
+            { _id: chatId as any, userId },
+            {
+              $push: { messages: { $each: [userMsg, assistantMsg] } },
+              $set: { updatedAt: now },
+            }
+          );
+        }
+      } catch (err) {
+        console.error('[Chat] Failed to save chat thread:', err);
+      }
+    };
+
+    // 6. Stream the Response using Vercel AI SDK with LLM Failover
+    let result;
+    try {
+      // Primary: Hugging Face (Qwen 7B)
+      result = await streamText({
+        model: hf('Qwen/Qwen2.5-Coder-7B-Instruct'),
+        system: systemPrompt,
+        messages: modelMessages,
+        onFinish: async (event) => {
+          console.log('[Chat Stream Finished]', {
+            finishReason: event.finishReason,
+            textLength: event.text.length,
+            usage: event.usage,
+          });
+          await saveChatThread(event.text);
+        },
+      });
+    } catch (llmError: any) {
+      const msg = llmError?.message || 'Unknown error';
+      console.warn(`[AI Router] Hugging Face stream failed (${msg}), failing over to Google Gemini`);
+      
+      try {
+        // Secondary: Google Gemini
+        result = await streamText({
+          model: google('gemini-2.5-flash'),
+          system: systemPrompt,
+          messages: modelMessages,
+          onFinish: async (event) => {
+            console.log('[Chat Stream Finished (Gemini)]', {
+              finishReason: event.finishReason,
+              textLength: event.text.length,
+              usage: event.usage,
+            });
+            await saveChatThread(event.text);
+          },
+        });
+      } catch (geminiError: any) {
+        console.error('[AI Router] Gemini stream also failed:', geminiError);
+        require('fs').appendFileSync('gemini-error.log', String(geminiError.stack || geminiError) + '\\n');
+        throw geminiError;
+      }
+    }
+
     const responseHeaders = new Headers();
     responseHeaders.set('x-source-files', Array.from(sourceFiles).join(','));
 
     return result.toUIMessageStreamResponse({ headers: responseHeaders });
 
   } catch (error: any) {
-    console.error('[Chat] Error:', error);
+    console.error('[Chat] Error:', error?.stack || error);
+    require('fs').appendFileSync('error.log', String(error?.stack || error) + '\\n');
     return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), { status: 500 });
   }
 }

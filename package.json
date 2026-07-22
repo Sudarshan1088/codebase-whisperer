@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.97",
     "@ai-sdk/huggingface": "^1.0.64",
     "@ai-sdk/openai": "^3.0.86",
     "@ai-sdk/react": "^3.0.232",
+    "@clerk/nextjs": "^7.5.22",
+    "adm-zip": "^0.6.0",
     "ai": "^6.0.230",
     "axios": "^1.18.1",
     "framer-motion": "^12.42.2",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/adm-zip": "^0.5.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

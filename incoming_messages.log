@@ -1,0 +1,12 @@
+[
+  {
+    "parts": [
+      {
+        "type": "text",
+        "text": "What database models exist?"
+      }
+    ],
+    "id": "lZQInWFQ2fcWGJEZ",
+    "role": "user"
+  }
+]
