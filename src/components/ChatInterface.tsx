@@ -64,7 +64,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
   }, [messages, isLoading]);
 
   return (
-    <div className="flex flex-col h-[75vh] max-h-[850px] bg-white/70 backdrop-blur-xl border border-slate-200/60 shadow-2xl rounded-3xl overflow-hidden mt-4 relative ring-1 ring-slate-900/5">
+    <div className="flex flex-col h-[100dvh] md:h-[75vh] md:max-h-[850px] w-full bg-white/70 backdrop-blur-xl border-none md:border border-slate-200/60 shadow-none md:shadow-2xl rounded-none md:rounded-3xl overflow-hidden md:mt-4 relative ring-0 md:ring-1 ring-slate-900/5">
       {/* Header */}
       <div className="px-6 py-4 border-b border-slate-200/60 bg-white/50 backdrop-blur-md flex items-center justify-between z-10">
         <div className="flex items-center space-x-2">
@@ -107,7 +107,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
               <p className="text-sm text-slate-500 max-w-sm">Ask any question about the architecture, components, or logic within <span className="font-medium text-slate-700">{repoId.split('/')[1]}</span>.</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl mt-4">
+            <div className="flex flex-row overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-2 pb-2 w-full max-w-2xl mt-4 md:grid md:grid-cols-2 md:overflow-visible">
               {[
                 "Explain the overall architecture",
                 "Where are the API routes defined?",
@@ -123,10 +123,10 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
                       window.history.replaceState(null, '', `/chat/${chatIdRef.current}`);
                     }
                   }}
-                  className="text-left px-5 py-4 rounded-2xl border border-slate-200/60 bg-white/80 hover:bg-white hover:border-slate-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group backdrop-blur-sm"
+                  className="whitespace-nowrap md:whitespace-normal snap-start shrink-0 text-left px-4 md:px-5 py-3 md:py-4 rounded-2xl border border-slate-200 text-slate-800 bg-transparent hover:bg-slate-50 hover:shadow-sm transition-all duration-200 flex items-center justify-between group backdrop-blur-sm"
                 >
-                  <span className="text-sm text-slate-600 font-medium group-hover:text-slate-900">{suggestion}</span>
-                  <span className="text-slate-300 group-hover:text-slate-900 text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
+                  <span className="text-sm font-medium group-hover:text-slate-900">{suggestion}</span>
+                  <span className="ml-3 text-slate-400 group-hover:text-slate-900 text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </button>
               ))}
             </div>
@@ -144,7 +144,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
             >
               <div className={`flex max-w-[92%] md:max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 shadow-sm ${
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5 shadow-sm ${
                   m.role === 'user' 
                     ? 'bg-slate-900 ml-3' 
                     : 'bg-white border border-slate-200 mr-3 shadow-sm'
@@ -152,7 +152,7 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
                   {m.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Sparkles className="w-4 h-4 text-slate-700" />}
                 </div>
                 
-                <div className={`min-w-0 p-4 md:p-5 rounded-3xl shadow-sm ${
+                <div className={`min-w-0 p-3 md:p-5 rounded-3xl shadow-sm ${
                   m.role === 'user' 
                     ? 'bg-slate-900 text-white rounded-tr-md border border-slate-800' 
                     : 'bg-white border border-slate-200/60 text-slate-800 rounded-tl-md shadow-[0_2px_10px_rgb(0,0,0,0.02)]'
@@ -186,14 +186,14 @@ export default function ChatInterface({ repoId, chatId, initialMessages }: { rep
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white/90 backdrop-blur-lg border-t border-slate-200/60">
+      <div className="p-2 md:p-4 bg-white/90 backdrop-blur-lg border-t border-slate-200/60">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative flex items-center rounded-2xl bg-slate-50 border border-slate-200/80 focus-within:bg-white focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-900/5 transition-all duration-300">
             <input
               value={input}
               onChange={handleInputChange}
               placeholder={`Ask anything about the codebase...`}
-              className="w-full bg-transparent border-none text-slate-900 rounded-2xl py-4 pl-5 pr-14 focus:outline-none focus:ring-0 transition-all placeholder:text-slate-400 font-medium"
+              className="w-full bg-transparent border-none text-slate-900 rounded-2xl py-3 md:py-4 pl-4 md:pl-5 pr-14 focus:outline-none focus:ring-0 transition-all placeholder:text-slate-400 font-medium text-[15px]"
             />
             <button
               type="submit"

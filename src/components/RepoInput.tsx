@@ -182,7 +182,7 @@ export default function RepoInput() {
           <button
             type="submit"
             disabled={loading || !url}
-            className="bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 active:scale-95 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all disabled:opacity-50 flex items-center space-x-1 md:space-x-2 shadow-[0_1px_0_rgba(255,255,255,0.2)_inset,0_4px_14px_rgba(239,68,68,0.3)] border border-red-700/50"
+            className="bg-slate-900 hover:bg-slate-800 active:scale-95 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all disabled:opacity-50 flex items-center space-x-1 md:space-x-2 shadow-sm"
           >
             {loading ? (
               <>
